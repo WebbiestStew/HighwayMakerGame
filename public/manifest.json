@@ -1,0 +1,27 @@
+{
+  "name": "Highway Architect - Urban Arteries",
+  "short_name": "Highway Architect",
+  "description": "Build realistic highway systems and manage urban growth in this 3D city-building simulation game",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#1e40af",
+  "theme_color": "#1e40af",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "simulation"],
+  "screenshots": [
+    {
+      "src": "/screenshots/gameplay-1.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "label": "Building highways in Highway Architect"
+    }
+  ]
+}
