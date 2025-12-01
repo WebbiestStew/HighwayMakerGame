@@ -9,6 +9,60 @@ interface CameraControls {
     rotation: number
 }
 
+// Cinematic camera animation system
+export const animateCamera = {
+    to: (camera: THREE.Camera, targetPos: THREE.Vector3, duration: number = 1.5) => {
+        const startPos = camera.position.clone()
+        const startTime = Date.now()
+
+        const animate = () => {
+            const elapsed = Date.now() - startTime
+            const progress = Math.min(elapsed / (duration * 1000), 1)
+            
+            // Smooth easing (ease-in-out cubic)
+            const eased = progress < 0.5
+                ? 4 * progress * progress * progress
+                : 1 - Math.pow(-2 * progress + 2, 3) / 2
+
+            camera.position.lerpVectors(startPos, targetPos, eased)
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate)
+            }
+        }
+        
+        animate()
+    },
+    
+    shake: (camera: THREE.Camera, intensity: number = 0.5, duration: number = 0.3) => {
+        const originalPos = camera.position.clone()
+        const startTime = Date.now()
+        
+        const shake = () => {
+            const elapsed = Date.now() - startTime
+            const progress = elapsed / (duration * 1000)
+            
+            if (progress < 1) {
+                const shakeAmount = intensity * (1 - progress)
+                camera.position.x = originalPos.x + (Math.random() - 0.5) * shakeAmount
+                camera.position.y = originalPos.y + (Math.random() - 0.5) * shakeAmount
+                camera.position.z = originalPos.z + (Math.random() - 0.5) * shakeAmount
+                requestAnimationFrame(shake)
+            } else {
+                camera.position.copy(originalPos)
+            }
+        }
+        
+        shake()
+    },
+    
+    followTarget: (camera: THREE.Camera, target: THREE.Vector3, offset: THREE.Vector3, smoothness: number = 0.1) => {
+        const targetPosition = target.clone().add(offset)
+        camera.position.lerp(targetPosition, smoothness)
+        camera.lookAt(target)
+    }
+}
+
 export const useCameraController = () => {
     const { camera } = useThree()
     const controlsRef = useRef<CameraControls>({
@@ -35,7 +89,7 @@ export const useCameraController = () => {
     }
 
     const PAN_SPEED = 0.5
-    const SMOOTH_FACTOR = 0.1
+    const SMOOTH_FACTOR = 0.15 // Increased for smoother movement
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -44,9 +98,10 @@ export const useCameraController = () => {
 
             keysPressed.current.add(e.key.toLowerCase())
 
-            // Home key to reset camera
+            // Home key to reset camera with animation
             if (e.key === 'Home') {
-                controlsRef.current.position.set(0, 50, 50)
+                const resetPos = new THREE.Vector3(0, 50, 50)
+                animateCamera.to(camera, resetPos, 1.5)
                 controlsRef.current.target.set(0, 0, 0)
                 targetZoom.current = 50
                 targetRotation.current = 0

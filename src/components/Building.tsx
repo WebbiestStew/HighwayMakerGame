@@ -1,41 +1,22 @@
 import React, { useMemo } from 'react'
+import { BUILDING_STYLES, type BuildingType } from '../types/BuildingTypes'
+import { useGameStore } from '../store/gameStore'
 
 interface BuildingProps {
-    type: 'house' | 'shop' | 'factory'
+    type: BuildingType
     position: [number, number, number]
     rotation: [number, number, number]
 }
 
 export const Building: React.FC<BuildingProps> = ({ type, position, rotation }) => {
+    const { timeOfDay } = useGameStore()
     const buildingData = useMemo(() => {
-        const variant = Math.floor(Math.random() * 3) // 3 variants per type
-
-        if (type === 'house') {
-            const styles = [
-                { color: '#e8d4b8', roofColor: '#8b4513', scale: [2, 2, 2], windows: true },
-                { color: '#f5f5dc', roofColor: '#654321', scale: [2.2, 2.5, 2], windows: true },
-                { color: '#dcdcdc', roofColor: '#696969', scale: [1.8, 2.2, 2.2], windows: true }
-            ]
-            return { ...styles[variant], roofType: 'pitched' }
-        }
-
-        if (type === 'shop') {
-            const styles = [
-                { color: '#b0c4de', roofColor: '#708090', scale: [3, 2.5, 3], windows: true },
-                { color: '#f0e68c', roofColor: '#daa520', scale: [3.5, 3, 2.5], windows: true },
-                { color: '#87ceeb', roofColor: '#4682b4', scale: [3, 3.5, 3], windows: true }
-            ]
-            return { ...styles[variant], roofType: 'flat' }
-        }
-
-        // Factory
-        const styles = [
-            { color: '#a0a0a0', roofColor: '#606060', scale: [4, 3, 4], windows: false },
-            { color: '#b8b8b8', roofColor: '#707070', scale: [5, 4, 3.5], windows: false },
-            { color: '#909090', roofColor: '#505050', scale: [4.5, 3.5, 4.5], windows: false }
-        ]
-        return { ...styles[variant], roofType: 'flat' }
+        const styles = BUILDING_STYLES[type] || BUILDING_STYLES.house
+        const variant = Math.floor(Math.random() * styles.length)
+        return styles[variant]
     }, [type])
+
+    const isNight = timeOfDay === 'night'
 
     return (
         <group position={position} rotation={rotation}>
@@ -49,7 +30,7 @@ export const Building: React.FC<BuildingProps> = ({ type, position, rotation }) 
                 />
             </mesh>
 
-            {/* Windows */}
+            {/* Windows - Glow at night */}
             {buildingData.windows && (
                 <>
                     {Array.from({ length: 3 }).map((_, i) => (
@@ -64,19 +45,21 @@ export const Building: React.FC<BuildingProps> = ({ type, position, rotation }) 
                         >
                             <boxGeometry args={[0.05, 0.8, 0.6]} />
                             <meshStandardMaterial
-                                color="#87CEEB"
-                                emissive="#ffffff"
-                                emissiveIntensity={0.2}
+                                color={isNight ? "#ffdd66" : "#87CEEB"}
+                                emissive={isNight ? "#ffaa00" : "#ffffff"}
+                                emissiveIntensity={isNight ? 0.8 : 0.2}
                                 metalness={0.9}
                                 roughness={0.1}
                             />
                         </mesh>
                     ))}
+                    
+                    {/* Window lights disabled for performance */}
                 </>
             )}
 
             {/* Roof */}
-            {buildingData.roofType === 'pitched' && type === 'house' && (
+            {buildingData.roofType === 'pitched' && (
                 <mesh
                     position={[0, buildingData.scale[1] + 0.5, 0]}
                     rotation={[0, Math.PI / 4, 0]}

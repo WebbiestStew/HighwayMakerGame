@@ -16,7 +16,8 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
         setEconomy,
         setRoadEfficiency,
         setTrafficFlow,
-        setNetIncome
+        setNetIncome,
+        currentEvent
     } = useGameStore()
 
     // Calculate stats
@@ -37,12 +38,15 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ onClose }) => {
     // Calculate income (enhanced economy)
     const commercialCount = zones.filter(z => z.type === 'commercial').length
     const industrialCount = zones.filter(z => z.type === 'industrial').length
-    
     const populationIncome = cityPopulation * 10 // $10 per person per month (taxes)
     const commercialIncome = commercialCount * 5000 // $5000 per commercial zone
     const industrialIncome = industrialCount * 8000 // $8000 per industrial zone
     
-    const monthlyIncome = populationIncome + commercialIncome + industrialIncome
+    // Apply seasonal event bonus
+    const baseIncome = populationIncome + commercialIncome + industrialIncome
+    const eventMultiplier = currentEvent ? currentEvent.incomeBonus : 1
+    const monthlyIncome = Math.round(baseIncome * eventMultiplier)
+    
     const maintenanceCosts = totalRoads * 100 + totalSigns * 50 // Road and sign maintenance
     const zoneCosts = totalZones * 500 // Zone upkeep
     const monthlyExpenses = maintenanceCosts + zoneCosts

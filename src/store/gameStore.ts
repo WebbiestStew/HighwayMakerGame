@@ -1,8 +1,11 @@
 import { create } from 'zustand'
 import { MISSIONS } from '../systems/MissionSystem'
 import { ACHIEVEMENTS, AchievementManager } from '../systems/AchievementSystem'
+import { SeasonalEventManager } from '../systems/SeasonalEvents'
 import type { Mission } from '../systems/MissionSystem'
 import type { Achievement } from '../systems/AchievementSystem'
+import type { SeasonalEvent } from '../systems/SeasonalEvents'
+import type { BuildingType } from '../types/BuildingTypes'
 
 interface GameState {
     mode: 'build' | 'play'
@@ -18,8 +21,8 @@ interface GameState {
     zones: Array<{ id: string, type: 'residential' | 'commercial' | 'industrial', position: [number, number, number], size: [number, number, number] }>
     addZone: (zone: { id: string, type: 'residential' | 'commercial' | 'industrial', position: [number, number, number], size: [number, number, number] }) => void
     removeZone: (id: string) => void
-    buildings: Array<{ id: string, type: 'house' | 'shop' | 'factory', position: [number, number, number], rotation: [number, number, number] }>
-    addBuilding: (building: { id: string, type: 'house' | 'shop' | 'factory', position: [number, number, number], rotation: [number, number, number] }) => void
+    buildings: Array<{ id: string, type: BuildingType, position: [number, number, number], rotation: [number, number, number] }>
+    addBuilding: (building: { id: string, type: BuildingType, position: [number, number, number], rotation: [number, number, number] }) => void
     removeBuilding: (id: string) => void
     selectedZoneType: 'residential' | 'commercial' | 'industrial'
     setSelectedZoneType: (type: 'residential' | 'commercial' | 'industrial') => void
@@ -58,6 +61,12 @@ interface GameState {
     setTrafficFlow: (flow: number) => void
     netIncome: number
     setNetIncome: (income: number) => void
+    // Seasonal Events
+    currentEvent: SeasonalEvent | null
+    checkCurrentEvent: () => void
+    // Time of Day
+    timeOfDay: 'day' | 'night'
+    setTimeOfDay: (time: 'day' | 'night') => void
     // Time
     gameDate: { month: number, year: number }
     advanceMonth: () => void
@@ -178,6 +187,15 @@ export const useGameStore = create<GameState>((set) => ({
     setTrafficFlow: (flow) => set({ trafficFlow: flow }),
     netIncome: 0,
     setNetIncome: (income) => set({ netIncome: income }),
+    // Seasonal Events
+    currentEvent: null,
+    checkCurrentEvent: () => set((state) => {
+        const event = SeasonalEventManager.getCurrentEvent(state.gameDate.month, new Date().getDate())
+        return { currentEvent: event }
+    }),
+    // Time of Day
+    timeOfDay: 'day',
+    setTimeOfDay: (time) => set({ timeOfDay: time }),
     // Time
     gameDate: { month: 1, year: 2024 },
     advanceMonth: () => set((state) => {
@@ -188,9 +206,13 @@ export const useGameStore = create<GameState>((set) => ({
         // Apply monthly income/expenses
         const netChange = state.monthlyIncome - state.monthlyExpenses
         
+        // Check for new seasonal event
+        const event = SeasonalEventManager.getCurrentEvent(actualMonth, 1)
+        
         return {
             gameDate: { month: actualMonth, year: newYear },
-            funds: state.funds + netChange
+            funds: state.funds + netChange,
+            currentEvent: event
         }
     }),
 }))

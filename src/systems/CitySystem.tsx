@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useGameStore } from '../store/gameStore'
+import { getRandomBuildingType, type BuildingType } from '../types/BuildingTypes'
 import * as THREE from 'three'
 
 export const CitySystem: React.FC = () => {
@@ -54,13 +55,11 @@ export const CitySystem: React.FC = () => {
                     }
 
                     if (nearRoad) {
-                        let buildingType: 'house' | 'shop' | 'factory' = 'house'
-                        if (zone.type === 'commercial') buildingType = 'shop'
-                        if (zone.type === 'industrial') buildingType = 'factory'
+                        const buildingType = getRandomBuildingType(zone.type)
 
                         addBuilding({
                             id: crypto.randomUUID(),
-                            type: buildingType,
+                            type: buildingType as any, // Will update gameStore types next
                             position: [x, 0, z],
                             rotation: [0, Math.random() * Math.PI * 2, 0]
                         })

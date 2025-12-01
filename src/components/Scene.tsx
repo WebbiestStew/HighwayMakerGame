@@ -1,6 +1,6 @@
-import React from 'react'
-import { Canvas } from '@react-three/fiber'
-import { Sky } from '@react-three/drei'
+import React, { useRef, useEffect } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { Sky, Stars, Environment } from '@react-three/drei'
 import { Terrain } from './Terrain'
 import { InteractionManager } from './InteractionManager'
 import { RoadSegment } from './RoadSegment'
@@ -13,15 +13,85 @@ import { TrafficHeatmap } from './TrafficHeatmap'
 import { NoisePollution } from './NoisePollution'
 import { HighwaySign } from './HighwaySign'
 import { useCameraController } from '../utils/CameraController'
+import { PostProcessing } from './PostProcessing'
+import * as THREE from 'three'
+
+// Animated street lights - DISABLED FOR PERFORMANCE
+const StreetLights: React.FC = () => {
+    // Disabled to improve performance
+    return null
+}
 
 const SceneContent: React.FC = () => {
-    const { roads, zones, buildings, signs } = useGameStore()
+    const { roads, zones, buildings, signs, timeOfDay } = useGameStore()
 
     // Initialize camera controller
     useCameraController()
+    
+    // Day/night colors with smooth transitions
+    const isDaytime = timeOfDay === 'day'
+    const skyColor = isDaytime ? '#87CEEB' : '#0a0a1a'
+    const fogColor = isDaytime ? '#b0c4de' : '#0f0f2e'
+    const ambientIntensity = isDaytime ? 0.6 : 0.15
+    const sunIntensity = isDaytime ? 1.2 : 0.1
+    
+    // Night-time moon light
+    const moonIntensity = isDaytime ? 0 : 0.3
 
     return (
         <>
+            <color attach="background" args={[skyColor]} />
+            <fog attach="fog" args={[fogColor, 80, 300]} />
+            
+            {/* Enhanced ambient light */}
+            <ambientLight intensity={ambientIntensity} color={isDaytime ? '#ffffff' : '#4a5a8a'} />
+            
+            {/* Main sun/moon light */}
+            <directionalLight
+                position={isDaytime ? [100, 100, 50] : [-100, 50, -50]}
+                intensity={isDaytime ? sunIntensity : moonIntensity}
+                color={isDaytime ? '#ffffff' : '#b4c8ff'}
+                castShadow
+                shadow-mapSize-width={1024}
+                shadow-mapSize-height={1024}
+                shadow-camera-far={500}
+                shadow-camera-left={-100}
+                shadow-camera-right={100}
+                shadow-camera-top={100}
+                shadow-camera-bottom={-100}
+                shadow-bias={-0.0001}
+            />
+            
+            {/* Fill light for better depth */}
+            <directionalLight
+                position={[-50, 30, -50]}
+                intensity={isDaytime ? 0.3 : 0.1}
+                color={isDaytime ? '#87CEEB' : '#2a3a6a'}
+            />
+            
+            {/* Hemisphere light for natural sky/ground lighting */}
+            <hemisphereLight
+                color={isDaytime ? '#87CEEB' : '#2a3a6a'}
+                groundColor={isDaytime ? '#8d7a5e' : '#1a1a2a'}
+                intensity={isDaytime ? 0.4 : 0.2}
+            />
+
+            {/* Stars at night - OPTIMIZED */}
+            {!isDaytime && (
+                <Stars
+                    radius={100}
+                    depth={50}
+                    count={1000}
+                    factor={3}
+                    saturation={0}
+                    fade
+                    speed={0.3}
+                />
+            )}
+
+            {/* Street lights */}
+            <StreetLights />
+
             <Terrain />
             <InteractionManager />
             <TrafficSystem />
@@ -54,52 +124,43 @@ const SceneContent: React.FC = () => {
 }
 
 export const Scene: React.FC = () => {
-    return (
-        <Canvas shadows camera={{ position: [50, 50, 50], fov: 45 }}>
-            <color attach="background" args={['#87CEEB']} />
-            <fog attach="fog" args={['#87CEEB', 80, 300]} />
+    const { timeOfDay } = useGameStore()
+    
+    // Dynamic sky and lighting based on time of day
+    const sunPosition: [number, number, number] = timeOfDay === 'day' ? [100, 50, 100] : [100, -20, 100]
+    const isDaytime = timeOfDay === 'day'
 
-            {/* Sun/Sky */}
+    return (
+        <Canvas 
+            shadows 
+            camera={{ position: [50, 50, 50], fov: 50 }}
+            gl={{
+                antialias: false,
+                alpha: false,
+                powerPreference: 'high-performance',
+                toneMapping: THREE.NoToneMapping,
+                toneMappingExposure: 1.0
+            }}
+            dpr={1}
+        >
+            {/* Environment and Sky */}
             <Sky
-                sunPosition={[100, 50, 100]}
-                turbidity={8}
-                rayleigh={2}
+                sunPosition={sunPosition}
+                turbidity={isDaytime ? 10 : 2}
+                rayleigh={isDaytime ? 3 : 0.5}
                 mieCoefficient={0.005}
                 mieDirectionalG={0.8}
+                inclination={isDaytime ? 0.6 : 0.1}
+                azimuth={0.25}
             />
 
-            {/* Ambient Light - Soft fill */}
-            <ambientLight intensity={0.4} color="#b8d4f0" />
-
-            {/* Key Light - Main sun */}
-            <directionalLight
-                position={[100, 100, 50]}
-                intensity={2.5}
-                color="#fffacd"
-                castShadow
-                shadow-mapSize={[4096, 4096]}
-                shadow-camera-left={-100}
-                shadow-camera-right={100}
-                shadow-camera-top={100}
-                shadow-camera-bottom={-100}
-                shadow-bias={-0.0001}
-            />
-
-            {/* Fill Light - Soften shadows */}
-            <directionalLight
-                position={[-50, 30, -50]}
-                intensity={0.8}
-                color="#8bb4d9"
-            />
-
-            {/* Rim Light - Edge definition */}
-            <directionalLight
-                position={[0, 20, -100]}
-                intensity={0.5}
-                color="#ffd9a0"
-            />
+            {/* HDR Environment for reflections */}
+            <Environment preset={isDaytime ? 'sunset' : 'night'} />
 
             <SceneContent />
+            
+            {/* Advanced post-processing effects */}
+            <PostProcessing />
         </Canvas>
     )
 }
