@@ -2,10 +2,11 @@ import React, { useRef, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Sky, Stars, Environment } from '@react-three/drei'
 import { Terrain } from './Terrain'
+import { EnhancedTerrain } from './EnhancedTerrain'
 import { InteractionManager } from './InteractionManager'
 import { RoadSegment } from './RoadSegment'
 import { useGameStore } from '../store/gameStore'
-import { TrafficSystem } from '../systems/TrafficSystem'
+import { NodeBasedTrafficSystem } from '../systems/NodeBasedTrafficSystem'
 import { CitySystem } from '../systems/CitySystem'
 import { Zone } from './Zone'
 import { Building } from './Building'
@@ -14,6 +15,9 @@ import { NoisePollution } from './NoisePollution'
 import { HighwaySign } from './HighwaySign'
 import { useCameraController } from '../utils/CameraController'
 import { PostProcessing } from './PostProcessing'
+import { WeatherSystem } from '../systems/WeatherSystemV3'
+import { GameSystemsManagerV3 } from '../systems/GameSystemsManagerV3'
+import { AdvancedLighting, CloudSystem, VolumetricLighting } from './AdvancedEffects'
 import * as THREE from 'three'
 
 // Animated street lights - DISABLED FOR PERFORMANCE
@@ -30,51 +34,23 @@ const SceneContent: React.FC = () => {
     
     // Day/night colors with smooth transitions
     const isDaytime = timeOfDay === 'day'
-    const skyColor = isDaytime ? '#87CEEB' : '#0a0a1a'
-    const fogColor = isDaytime ? '#b0c4de' : '#0f0f2e'
-    const ambientIntensity = isDaytime ? 0.6 : 0.15
-    const sunIntensity = isDaytime ? 1.2 : 0.1
-    
-    // Night-time moon light
-    const moonIntensity = isDaytime ? 0 : 0.3
 
     return (
         <>
-            <color attach="background" args={[skyColor]} />
-            <fog attach="fog" args={[fogColor, 80, 300]} />
+            {/* V3 Systems Manager - Coordinates all new features */}
+            <GameSystemsManagerV3 />
             
-            {/* Enhanced ambient light */}
-            <ambientLight intensity={ambientIntensity} color={isDaytime ? '#ffffff' : '#4a5a8a'} />
+            {/* Advanced Lighting System V3 */}
+            <AdvancedLighting timeOfDay={timeOfDay} />
             
-            {/* Main sun/moon light */}
-            <directionalLight
-                position={isDaytime ? [100, 100, 50] : [-100, 50, -50]}
-                intensity={isDaytime ? sunIntensity : moonIntensity}
-                color={isDaytime ? '#ffffff' : '#b4c8ff'}
-                castShadow
-                shadow-mapSize-width={1024}
-                shadow-mapSize-height={1024}
-                shadow-camera-far={500}
-                shadow-camera-left={-100}
-                shadow-camera-right={100}
-                shadow-camera-top={100}
-                shadow-camera-bottom={-100}
-                shadow-bias={-0.0001}
-            />
+            {/* Weather System V3 */}
+            <WeatherSystem />
             
-            {/* Fill light for better depth */}
-            <directionalLight
-                position={[-50, 30, -50]}
-                intensity={isDaytime ? 0.3 : 0.1}
-                color={isDaytime ? '#87CEEB' : '#2a3a6a'}
-            />
+            {/* Cloud System for atmosphere */}
+            <CloudSystem />
             
-            {/* Hemisphere light for natural sky/ground lighting */}
-            <hemisphereLight
-                color={isDaytime ? '#87CEEB' : '#2a3a6a'}
-                groundColor={isDaytime ? '#8d7a5e' : '#1a1a2a'}
-                intensity={isDaytime ? 0.4 : 0.2}
-            />
+            {/* Volumetric god rays during daytime */}
+            {isDaytime && <VolumetricLighting />}
 
             {/* Stars at night - OPTIMIZED */}
             {!isDaytime && (
@@ -92,9 +68,10 @@ const SceneContent: React.FC = () => {
             {/* Street lights */}
             <StreetLights />
 
-            <Terrain />
+            {/* Enhanced Terrain with height variation */}
+            <EnhancedTerrain />
             <InteractionManager />
-            <TrafficSystem />
+            <NodeBasedTrafficSystem />
             <CitySystem />
             <TrafficHeatmap />
             <NoisePollution />
@@ -133,21 +110,21 @@ export const Scene: React.FC = () => {
     return (
         <Canvas 
             shadows 
-            camera={{ position: [50, 50, 50], fov: 50 }}
+            camera={{ position: [50, 50, 50], fov: 50, near: 1, far: 500 }}
             gl={{
                 antialias: false,
                 alpha: false,
                 powerPreference: 'high-performance',
-                toneMapping: THREE.NoToneMapping,
-                toneMappingExposure: 1.0
+                toneMapping: THREE.ACESFilmicToneMapping,
+                toneMappingExposure: isDaytime ? 1.1 : 0.7
             }}
-            dpr={1}
+            dpr={Math.min(window.devicePixelRatio, 1.5)}
         >
             {/* Environment and Sky */}
             <Sky
                 sunPosition={sunPosition}
-                turbidity={isDaytime ? 10 : 2}
-                rayleigh={isDaytime ? 3 : 0.5}
+                turbidity={isDaytime ? 8 : 2}
+                rayleigh={isDaytime ? 2 : 0.5}
                 mieCoefficient={0.005}
                 mieDirectionalG={0.8}
                 inclination={isDaytime ? 0.6 : 0.1}

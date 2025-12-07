@@ -17,7 +17,12 @@ export const Vehicle: React.FC<VehicleProps> = ({ position, rotation, color = '#
                 {/* Truck Cab */}
                 <mesh position={[0, 0.6, 1.5]} castShadow>
                     <boxGeometry args={[2, 1, 2.5]} />
-                    <meshStandardMaterial color={vehicleColor} />
+                    <meshStandardMaterial 
+                        color={vehicleColor} 
+                        roughness={0.4} 
+                        metalness={0.7}
+                        envMapIntensity={1.0}
+                    />
                 </mesh>
 
                 {/* Truck Cargo */}
@@ -43,9 +48,14 @@ export const Vehicle: React.FC<VehicleProps> = ({ position, rotation, color = '#
         return (
             <group position={position} rotation={rotation}>
                 {/* Bus Body */}
-                <mesh position={[0, 1, 0]} castShadow>
-                    <boxGeometry args={[2.2, 1.8, 6]} />
-                    <meshStandardMaterial color={vehicleColor} />
+                <mesh position={[0, 1.2, 0]} castShadow>
+                    <boxGeometry args={[2.5, 2, 6]} />
+                    <meshStandardMaterial 
+                        color={vehicleColor}
+                        roughness={0.5}
+                        metalness={0.6}
+                        envMapIntensity={0.8}
+                    />
                 </mesh>
 
                 {/* Windows */}
@@ -73,7 +83,12 @@ export const Vehicle: React.FC<VehicleProps> = ({ position, rotation, color = '#
             {/* Car Body */}
             <mesh position={[0, 0.5, 0]} castShadow>
                 <boxGeometry args={[1.8, 0.8, 4]} />
-                <meshStandardMaterial color={vehicleColor} />
+                <meshStandardMaterial 
+                    color={vehicleColor}
+                    roughness={0.3}
+                    metalness={0.8}
+                    envMapIntensity={1.2}
+                />
             </mesh>
 
             {/* Car Cabin */}

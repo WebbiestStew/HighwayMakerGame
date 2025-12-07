@@ -9,18 +9,19 @@ export const PostProcessing: React.FC = () => {
 
     return (
         <EffectComposer multisampling={0}>
-            {/* Bloom for glowing lights - OPTIMIZED */}
+            {/* Enhanced Bloom - Better glow for night lights */}
             <Bloom
-                intensity={isDaytime ? 0.2 : 0.5}
-                luminanceThreshold={isDaytime ? 0.95 : 0.7}
-                luminanceSmoothing={0.7}
-                kernelSize={KernelSize.SMALL}
+                intensity={isDaytime ? 0.5 : 1.0}
+                luminanceThreshold={isDaytime ? 0.9 : 0.65}
+                luminanceSmoothing={0.8}
+                kernelSize={KernelSize.MEDIUM}
+                mipmapBlur
             />
 
-            {/* Vignette for cinematic look - lightweight */}
+            {/* Vignette for cinematic look */}
             <Vignette
-                offset={0.4}
-                darkness={isDaytime ? 0.4 : 0.6}
+                offset={0.3}
+                darkness={isDaytime ? 0.4 : 0.65}
                 blendFunction={BlendFunction.NORMAL}
             />
         </EffectComposer>

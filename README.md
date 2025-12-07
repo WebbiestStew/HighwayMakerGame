@@ -1,209 +1,189 @@
-# 🛣️ Highway Architect - Urban Arteries
+# 🏙️ Highway Maker V4 - City Builder
 
-**Build and manage realistic highway systems in this immersive urban planning simulation game**
+**Professional city-building simulation inspired by Cities: Skylines**
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## 🎮 About
 
-Highway Architect is a sophisticated city-building and traffic management simulation where you design, build, and optimize highway networks. Connect residential zones, manage traffic flow, grow your city, and complete challenging missions while unlocking achievements.
+Highway Maker V4 is a comprehensive city-building simulation game. Design highway networks, manage zones, provide utilities and services, build public transport, and watch your city grow with thousands of simulated citizens.
 
-## ✨ Features
+## ✨ Core Features
 
-### Core Gameplay
-- **🛣️ Highway Construction**: Build straight and curved road segments with realistic asphalt textures
-- **🪧 Highway Signage**: Place exit signs, warning signs, speed limits, and distance markers
-- **🏙️ Zoning System**: Designate residential, commercial, and industrial zones
-- **🏗️ Automatic City Growth**: Buildings spawn automatically near roads in zoned areas
-- **🚗 Traffic Simulation**: Realistic vehicle pathfinding with cars, trucks, and buses
+### 🏗️ Advanced Zoning (4 Types × 3 Densities)
+- **Residential** 🏠 - Housing for citizens
+- **Commercial** 🏢 - Shops and businesses
+- **Industrial** 🏭 - Factories and warehouses
+- **Office** 🏛️ - Corporate buildings
+- Each with Low, Medium, and High density options
 
-### Advanced Features
-- **🎯 Mission System**: Complete 5 unique missions with varying difficulty levels
-- **🏆 Achievement System**: Unlock 10+ achievements including hidden ones
-- **💰 Dynamic Economy**: Manage income from zones, construction costs, and maintenance expenses
-- **📊 Real-time Analytics**: Traffic heatmaps, noise pollution visualization, and detailed statistics
-- **💾 Save/Load System**: Auto-save every 30 seconds with manual save/load options
-- **🎵 Ambient Music**: Procedurally generated ambient music with multiple tracks
-- **🔊 Sound Effects**: UI feedback and construction sounds
-- **⚙️ Settings**: Adjustable graphics quality, shadow settings, and audio controls
+### ⚡ Utilities Management
+- **Power**: Coal, Nuclear, Wind, Solar plants
+- **Water**: Pumping stations and treatment facilities
+- **Sewage**: Outlets and treatment plants
+- Full network simulation with coverage tracking
 
-### Visualization
-- **Traffic Heatmap**: See real-time traffic density on your highways
-- **Noise Pollution**: Visualize environmental impact from traffic
-- **Day/Night Cycle**: Beautiful sky and lighting system
-- **3D Graphics**: Powered by Three.js with realistic shadows and materials
+### 🏥 City Services
+- **Police** 👮 - Safety and crime reduction
+- **Fire** 🚒 - Fire protection
+- **Healthcare** 🏥 - Clinics and hospitals
+- **Education** 🎓 - Schools and universities
+- **Parks** 🌳 - Recreation and happiness
 
-## 🎯 Missions
+### 🚇 Public Transport
+- **Bus** 🚌 - Local transport ($500/stop)
+- **Metro** 🚇 - Underground rapid transit ($5k/station)
+- **Train** 🚆 - Regional rail ($8k/station)
+- Create routes, manage ridership, track efficiency
 
-1. **Highway Basics** (Easy) - Learn the fundamentals
-2. **Urban Connector** (Easy) - Connect residential areas
-3. **Traffic Master** (Medium) - Optimize traffic flow
-4. **Economic Powerhouse** (Medium) - Build a profitable district
-5. **Mega Highway** (Hard) - Create a massive network
+### 🗺️ Districts & Policies
+- Paint custom district boundaries
+- 12 policy types (taxes, eco-zones, restrictions)
+- Adjust tax rates per district (-29% to +29%)
+- Specialized zones for unique gameplay
 
-## 🏆 Achievements
+### 👥 Demographics Simulation
+- Individual citizen simulation
+- Age, employment, education tracking
+- Life cycles and population growth
+- Happiness and unemployment monitoring
 
-Unlock achievements by:
-- Completing missions
-- Reaching population milestones
-- Managing traffic efficiently
-- Accumulating wealth
-- Placing signs and building infrastructure
+## 🎨 Modern UI Components
+
+### MainMenuV4
+Futuristic glassmorphism design with:
+- 30 animated floating particles
+- City skyline silhouette SVG
+- Career vs Sandbox mode selection
+- Smooth Framer Motion animations
+
+### LoadingScreenV4
+Engaging loading experience with:
+- 5 animated buildings growing with progress
+- Window lighting effects
+- Pro tips and feature badges
+- Stage-based progress messages
+
+### CityBuilderHUD
+Complete game interface showing:
+- **Top Bar**: Real-time balance, monthly income/expenses
+- **Center**: Population, area, happiness stats
+- **Left Panel**: RCI demand bars (color-coded)
+- **Right Panel**: Utilities and service coverage
+- **Notifications**: Budget crisis alerts
+
+### BuildTools
+Comprehensive build menu with:
+- **5 Tabs**: Zones, Utilities, Services, Transport, Districts
+- **24 Buildable Items**: Complete construction options
+- **Affordability Checks**: Items disabled when broke
+- **Visual Feedback**: Hover effects and selection states
 
 ## 🎮 Controls
 
-### Building Tools
-- **Q** - Select Tool
-- **W** - Road Tool
-- **E** - Sign Tool
-- **R** - Zone Tool
-- **C** - Toggle Curve Mode (for curved roads)
-
-### Camera Controls
-- **WASD** - Pan camera
-- **Shift + WASD** - Fast pan
-- **Mouse Wheel** - Zoom in/out
-- **Home** - Reset camera
-
-### Other
-- **Tab** - Toggle Stats Panel
-- **Escape** - Pause Menu
-- **Ctrl+S** - Quick Save
+**Building**: Click items in BuildTools → Click map to place  
+**Camera**: WASD/Arrows to pan, Mouse wheel to zoom  
+**Hotkeys**: 
+- `Ctrl+P` - Performance monitor
+- `Escape` - Pause/cancel
 
 ## 🚀 Getting Started
 
-### Installation
-
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/highway-architect.git
-
-# Navigate to directory
-cd highway-architect
-
 # Install dependencies
 npm install
 
 # Start development server
 npm run dev
-```
 
-### Building for Production
-
-```bash
-# Build optimized production version
+# Build for production
 npm run build
-
-# Preview production build
-npm run preview
 ```
 
-## 🛠️ Technology Stack
+Game opens at `http://localhost:5173`
 
-- **React 19** - UI framework
-- **TypeScript** - Type-safe development
-- **Three.js** - 3D graphics engine
-- **React Three Fiber** - React renderer for Three.js
+## 🛠️ Tech Stack
+
+- **React 19** + **TypeScript 5.9**
+- **Three.js** + **React Three Fiber** - 3D rendering
+- **Framer Motion** - Animations
 - **Zustand** - State management
-- **Vite** - Build tool and dev server
 - **Tailwind CSS** - Styling
+- **Vite** - Build tool
 
 ## 📦 Project Structure
 
 ```
-highway-architect/
-├── src/
-│   ├── components/     # 3D components (roads, buildings, vehicles)
-│   │   └── UI/        # User interface components
-│   ├── systems/       # Game systems (traffic, city, missions)
-│   ├── store/         # Global state management
-│   ├── utils/         # Utilities (camera, sound, pathfinding)
-│   └── App.tsx        # Main application
-├── public/            # Static assets
-└── index.html         # Entry point
+src/
+├── components/
+│   ├── UI/
+│   │   ├── MainMenuV4.tsx           # Modern main menu
+│   │   ├── LoadingScreenV4.tsx      # Animated loading
+│   │   ├── CityBuilderHUD.tsx       # Game HUD
+│   │   └── BuildTools.tsx           # Build menu
+│   ├── Scene.tsx                     # 3D scene
+│   └── ...                           # Other 3D components
+├── systems/
+│   ├── CitiesSkylinesSystemV4.tsx   # Master coordinator
+│   ├── ZoningSystemV4.ts            # Zone management
+│   ├── DistrictSystemV4.ts          # Districts & policies
+│   ├── UtilitiesSystemV4.ts         # Power/water/sewage
+│   ├── ServicesSystemV4.ts          # City services
+│   ├── PublicTransportSystemV4.ts   # Transport routes
+│   └── DemographicsSystemV4.ts      # Citizen simulation
+├── store/
+│   └── gameStore.ts                  # Global state
+└── utils/                            # Helper utilities
 ```
 
-## 🎨 Game Design
+## 📚 Documentation
 
-### Economy System
-- **Income Sources**:
-  - Population taxes: $10 per citizen per month
-  - Commercial zones: $5,000 per zone per month
-  - Industrial zones: $8,000 per zone per month
+- **CITIES_SKYLINES_V4.md** - Complete feature guide (all 7 systems)
+- **QUICK_START_V4.md** - Integration tutorial
+- **V4_UI_COMPLETE.md** - UI component documentation
+- **ROADMAP.md** - Future plans
+- **CHANGELOG.md** - Version history
 
-- **Expenses**:
-  - Road construction: $50,000 per segment
-  - Road maintenance: $100 per road per month
-  - Zone designation: $25,000 one-time
-  - Zone upkeep: $500 per zone per month
-  - Highway signs: $5,000 per sign
+## 🎯 Game Modes
 
-### Population Growth
-- Buildings spawn automatically in zoned areas near roads
-- Each building houses approximately 50 citizens
-- Population affects income and traffic density
+**Career Mode**: Start with limited budget, unlock progressively  
+**Sandbox Mode**: Unlimited funds, creative freedom
 
-### Traffic Simulation
-- Vehicles use A* pathfinding to navigate road networks
-- Three vehicle types: cars (70%), trucks (20%), buses (10%)
-- Traffic density affects road efficiency ratings
-- Congestion creates noise pollution
+## 💰 Economy
 
-## 🐛 Known Issues & Roadmap
+- **Income**: Taxes from zones, varies by density
+- **Expenses**: Construction, maintenance, utilities, services
+- **Budget Tracking**: Real-time profit/loss monitoring
+- **Crisis Alerts**: Red notifications when balance < 0
 
-### Current Limitations
-- Limited to single-player mode
-- No multiplayer support
-- Basic building variety
+## 🎨 Design Language
 
-### Planned Features
-- More building types and variety
-- Weather and seasonal effects
-- Public transport systems (trains, subways)
-- Budget and loan system
-- Campaign mode with story
-- Steam Workshop integration
-- Mod support
+- **Glassmorphism**: `backdrop-blur-xl`, translucent panels
+- **Gradients**: Blue → Purple → Pink accent colors
+- **Animations**: Smooth Framer Motion transitions
+- **Responsive**: Hover states, disabled states, visual cues
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Educational project showcasing:
+- React + Three.js integration
+- Complex state management patterns
+- City simulation algorithms
+- Modern UI/UX design
 
-## 📄 License
+Contributions welcome via Pull Requests!
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## 📝 License
 
-## 🙏 Credits
+MIT License - Free for learning and experimentation
 
-### Development
-- Highway Architect Team
+## 🙏 Acknowledgments
 
-### Technology
-- React & Three.js communities
-- Open source contributors
+Inspired by **Cities: Skylines** (Colossal Order) and **SimCity** (Maxis)
 
-### Special Thanks
-- All our players and supporters
-- Beta testers
-- Community feedback
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/highway-architect/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/highway-architect/discussions)
-- **Email**: support@highwayarchitect.game
-
-## 🌟 Show Your Support
-
-If you enjoy Highway Architect, please:
-- ⭐ Star this repository
-- 🐦 Share on social media
-- 📝 Write a review
-- 🎮 Stream your gameplay
+Built with ❤️ using React, Three.js, and TypeScript
 
 ---
 
-**Built with ❤️ using React, Three.js, and TypeScript**
-
-*Highway Architect - Urban Arteries v1.0.0*
+**Highway Maker V4** - Professional City Building Simulation

@@ -2,10 +2,15 @@ import { create } from 'zustand'
 import { MISSIONS } from '../systems/MissionSystem'
 import { ACHIEVEMENTS, AchievementManager } from '../systems/AchievementSystem'
 import { SeasonalEventManager } from '../systems/SeasonalEvents'
+import { WeatherSystemV3 } from '../systems/WeatherSystemV3'
+import { EconomySystemV3 } from '../systems/EconomySystemV3'
+import { CareerModeV3 } from '../systems/CareerModeV3'
+import { TrafficAIV3 } from '../systems/TrafficAIV3'
 import type { Mission } from '../systems/MissionSystem'
 import type { Achievement } from '../systems/AchievementSystem'
 import type { SeasonalEvent } from '../systems/SeasonalEvents'
 import type { BuildingType } from '../types/BuildingTypes'
+import type { RoadNode, RoadConnection, Intersection, RoadVehicle } from '../types/RoadNetwork'
 
 interface GameState {
     mode: 'build' | 'play'
@@ -18,6 +23,14 @@ interface GameState {
     removeRoad: (id: string) => void
     isCurveMode: boolean
     setCurveMode: (isCurve: boolean) => void
+    // Node-based road network
+    roadNodes: RoadNode[]
+    roadConnections: RoadConnection[]
+    addRoadNode: (node: RoadNode) => void
+    updateRoadNode: (id: string, updates: Partial<RoadNode>) => void
+    removeRoadNode: (id: string) => void
+    addRoadConnection: (connection: RoadConnection) => void
+    removeRoadConnection: (id: string) => void
     zones: Array<{ id: string, type: 'residential' | 'commercial' | 'industrial', position: [number, number, number], size: [number, number, number] }>
     addZone: (zone: { id: string, type: 'residential' | 'commercial' | 'industrial', position: [number, number, number], size: [number, number, number] }) => void
     removeZone: (id: string) => void
@@ -39,8 +52,17 @@ interface GameState {
     removeSign: (id: string) => void
     selectedSignType: 'exit' | 'warning' | 'info' | 'speed' | 'distance'
     setSelectedSignType: (type: 'exit' | 'warning' | 'info' | 'speed' | 'distance') => void
-    gameState: 'menu' | 'playing'
-    setGameState: (state: 'menu' | 'playing') => void
+    gameState: 'menu' | 'loading' | 'playing'
+    setGameState: (state: 'menu' | 'loading' | 'playing') => void
+    // Traffic & Intersections
+    intersections: Intersection[]
+    addIntersection: (intersection: Intersection) => void
+    updateIntersection: (id: string, updates: Partial<Intersection>) => void
+    removeIntersection: (id: string) => void
+    roadVehicles: RoadVehicle[]
+    addRoadVehicle: (vehicle: RoadVehicle) => void
+    updateRoadVehicle: (id: string, updates: Partial<RoadVehicle>) => void
+    removeRoadVehicle: (id: string) => void
     // Missions & Achievements
     missions: Mission[]
     setMissions: (missions: Mission[]) => void
@@ -98,6 +120,78 @@ export const useGameStore = create<GameState>((set) => ({
     setSelectedTool: (tool) => set({ selectedTool: tool }),
     isCurveMode: false,
     setCurveMode: (isCurve) => set({ isCurveMode: isCurve }),
+    // Node-based road network
+    roadNodes: [],
+    roadConnections: [],
+    addRoadNode: (node) => set((state) => ({
+        roadNodes: [...state.roadNodes, node]
+    })),
+    updateRoadNode: (id, updates) => set((state) => ({
+        roadNodes: state.roadNodes.map(n =>
+            n.id === id ? { ...n, ...updates } : n
+        )
+    })),
+    removeRoadNode: (id) => set((state) => ({
+        roadNodes: state.roadNodes.filter(n => n.id !== id),
+        roadConnections: state.roadConnections.filter(c =>
+            c.startNodeId !== id && c.endNodeId !== id
+        )
+    })),
+    addRoadConnection: (connection) => set((state) => {
+        const cost = 50000
+        if (state.funds >= cost) {
+            // Update connected nodes
+            const updatedNodes = state.roadNodes.map(node => {
+                if (node.id === connection.startNodeId) {
+                    return {
+                        ...node,
+                        connectedNodes: [...new Set([...node.connectedNodes, connection.endNodeId])]
+                    }
+                }
+                if (node.id === connection.endNodeId && !connection.isOneWay) {
+                    return {
+                        ...node,
+                        connectedNodes: [...new Set([...node.connectedNodes, connection.startNodeId])]
+                    }
+                }
+                return node
+            })
+            
+            return {
+                roadConnections: [...state.roadConnections, connection],
+                roadNodes: updatedNodes,
+                funds: state.funds - cost
+            }
+        }
+        return state
+    }),
+    removeRoadConnection: (id) => set((state) => {
+        const connection = state.roadConnections.find(c => c.id === id)
+        if (!connection) return state
+        
+        // Update connected nodes
+        const updatedNodes = state.roadNodes.map(node => {
+            if (node.id === connection.startNodeId) {
+                return {
+                    ...node,
+                    connectedNodes: node.connectedNodes.filter(n => n !== connection.endNodeId)
+                }
+            }
+            if (node.id === connection.endNodeId && !connection.isOneWay) {
+                return {
+                    ...node,
+                    connectedNodes: node.connectedNodes.filter(n => n !== connection.startNodeId)
+                }
+            }
+            return node
+        })
+        
+        return {
+            roadConnections: state.roadConnections.filter(c => c.id !== id),
+            roadNodes: updatedNodes,
+            funds: state.funds + 25000
+        }
+    }),
     zones: [],
     addZone: (zone) => set((state) => {
         const cost = 25000
@@ -139,6 +233,31 @@ export const useGameStore = create<GameState>((set) => ({
     setSelectedSignType: (type) => set({ selectedSignType: type }),
     gameState: 'menu',
     setGameState: (state) => set({ gameState: state }),
+    // Traffic & Intersections
+    intersections: [],
+    addIntersection: (intersection) => set((state) => ({
+        intersections: [...state.intersections, intersection]
+    })),
+    updateIntersection: (id, updates) => set((state) => ({
+        intersections: state.intersections.map(i =>
+            i.id === id ? { ...i, ...updates } : i
+        )
+    })),
+    removeIntersection: (id) => set((state) => ({
+        intersections: state.intersections.filter(i => i.id !== id)
+    })),
+    roadVehicles: [],
+    addRoadVehicle: (vehicle) => set((state) => ({
+        roadVehicles: [...state.roadVehicles, vehicle]
+    })),
+    updateRoadVehicle: (id, updates) => set((state) => ({
+        roadVehicles: state.roadVehicles.map(v =>
+            v.id === id ? { ...v, ...updates } : v
+        )
+    })),
+    removeRoadVehicle: (id) => set((state) => ({
+        roadVehicles: state.roadVehicles.filter(v => v.id !== id)
+    })),
     // Missions & Achievements
     missions: MISSIONS,
     setMissions: (missions) => set({ missions }),

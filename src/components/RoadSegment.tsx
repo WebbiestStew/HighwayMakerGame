@@ -33,9 +33,10 @@ export const RoadSegment: React.FC<RoadSegmentProps> = ({ start, end, controlPoi
                 {/* Main Road Surface */}
                 <mesh geometry={roadGeometry.geometry} receiveShadow castShadow>
                     <meshStandardMaterial
-                        color="#1a1a1a"
-                        roughness={0.8}
-                        metalness={0.1}
+                        color="#2a2a2a"
+                        roughness={0.7}
+                        metalness={0.3}
+                        envMapIntensity={0.3}
                     />
                 </mesh>
 
@@ -76,9 +77,10 @@ export const RoadSegment: React.FC<RoadSegmentProps> = ({ start, end, controlPoi
             <mesh position={[0, 0.1, 0]} receiveShadow castShadow>
                 <boxGeometry args={[10, 0.2, length]} />
                 <meshStandardMaterial
-                    color="#1a1a1a"
-                    roughness={0.85}
-                    metalness={0.05}
+                    color="#2a2a2a"
+                    roughness={0.7}
+                    metalness={0.3}
+                    envMapIntensity={0.3}
                 />
             </mesh>
 
